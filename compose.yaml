@@ -1,8 +1,8 @@
 services:
   relay:
     container_name: relay
-    # image: ghcr.io/mroxso/nostr-rs-relay:latest
-    image: nostr-rs-relay:local
+    image: ghcr.io/mroxso/nostr-rs-relay:latest
+    # image: nostr-rs-relay:local
     stdin_open: true
     tty: true
     ports:
