@@ -21,3 +21,8 @@ services:
     image: ghcr.io/openelect-software/publisher:main
     ports:
       - 3001:3000
+  viewer:
+    container_name: viewer
+    image: ghcr.io/openelect-software/viewer:main
+    ports:
+      - 3002:3000
