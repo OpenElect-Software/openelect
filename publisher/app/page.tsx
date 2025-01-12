@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { finalizeEvent, verifyEvent } from 'nostr-tools/pure'
+import { hexToBytes } from '@noble/hashes/utils'
+// import { getPublicKey } from 'nostr-tools'
 
 interface Entry {
   name: string;
@@ -16,6 +19,7 @@ export default function DataEntry() {
     { name: '', number: '' },
     { name: '', number: '' }
   ]);
+  const [secretKey, setSecretKey] = useState<string>('');
 
   const handleNameChange = (index: number, name: string) => {
     const updatedEntries = [...entries];
@@ -33,11 +37,40 @@ export default function DataEntry() {
     setEntries([...entries, { name: '', number: '' }]);
   };
 
-  const submitData = () => {
+  const submitData = useCallback(() => {
+    if (!secretKey) {
+      console.error('Secret key is required');
+      return;
+    }
+
     const jsonData = JSON.stringify(entries);
     console.log('Submitted data:', jsonData);
-    // TODO: Publish to nostr relay
-  };
+
+    const nsecBytes = hexToBytes(secretKey);
+    // const nsecHex = bytesToHex(nsecBytes);
+    // const pubkey = getPublicKey(nsecBytes);
+
+    // Create and verify Event
+    try {
+      const event = finalizeEvent({
+        kind: 1,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [],
+        content: jsonData,
+      }, nsecBytes);
+      
+      const isGood = verifyEvent(event);
+
+      if (isGood) {
+        console.log('Event created and verified successfully:', event);
+        // TODO: Publish to nostr relay
+      } else {
+        console.error('Event verification failed');
+      }
+    } catch (error) {
+      console.error('Error creating or verifying event:', error);
+    }
+  }, [entries, secretKey]);
 
   return (
     <div className="container mx-auto p-4">
@@ -47,6 +80,15 @@ export default function DataEntry() {
           <CardDescription>Enter names and numbers</CardDescription>
         </CardHeader>
         <CardContent>
+        <div className="mb-4">
+          <Input
+            type="password"
+            value={secretKey}
+            onChange={(e) => setSecretKey(e.target.value)}
+            placeholder="Enter your secret key"
+            className="w-full"
+          />
+        </div>
           <Table>
             <TableHeader>
               <TableRow>
