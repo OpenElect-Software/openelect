@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { finalizeEvent, verifyEvent } from 'nostr-tools/pure'
 import { hexToBytes } from '@noble/hashes/utils'
-// import { getPublicKey } from 'nostr-tools'
 
 interface Entry {
   name: string;
@@ -20,6 +19,8 @@ export default function DataEntry() {
     { name: '', number: '' }
   ]);
   const [secretKey, setSecretKey] = useState<string>('');
+  const [serverUrl, setServerUrl] = useState<string>('');
+  const [urlError, setUrlError] = useState<string>('');
 
   const handleNameChange = (index: number, name: string) => {
     const updatedEntries = [...entries];
@@ -37,20 +38,38 @@ export default function DataEntry() {
     setEntries([...entries, { name: '', number: '' }]);
   };
 
+  const validateServerUrl = (url: string) => {
+    if (url.startsWith('ws://') || url.startsWith('wss://')) {
+      setUrlError('');
+      return true;
+    } else {
+      setUrlError('Server URL must start with ws:// or wss://');
+      return false;
+    }
+  };
+
+  const handleServerUrlChange = (url: string) => {
+    setServerUrl(url);
+    validateServerUrl(url);
+  };
+
   const submitData = useCallback(() => {
     if (!secretKey) {
       console.error('Secret key is required');
       return;
     }
 
+    if (!validateServerUrl(serverUrl)) {
+      console.error('Invalid server URL');
+      return;
+    }
+
     const jsonData = JSON.stringify(entries);
     console.log('Submitted data:', jsonData);
+    console.log('Server URL:', serverUrl);
 
     const nsecBytes = hexToBytes(secretKey);
-    // const nsecHex = bytesToHex(nsecBytes);
-    // const pubkey = getPublicKey(nsecBytes);
 
-    // Create and verify Event
     try {
       const event = finalizeEvent({
         kind: 1,
@@ -63,32 +82,44 @@ export default function DataEntry() {
 
       if (isGood) {
         console.log('Event created and verified successfully:', event);
-        // TODO: Publish to nostr relay
+        // TODO: Publish to nostr relay using the serverUrl
       } else {
         console.error('Event verification failed');
       }
     } catch (error) {
       console.error('Error creating or verifying event:', error);
     }
-  }, [entries, secretKey]);
+  }, [entries, secretKey, serverUrl]);
 
   return (
     <div className="container mx-auto p-4">
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Data Entry</CardTitle>
-          <CardDescription>Enter names and numbers</CardDescription>
+          <CardDescription>Enter names, numbers, and server details</CardDescription>
         </CardHeader>
         <CardContent>
-        <div className="mb-4">
-          <Input
-            type="password"
-            value={secretKey}
-            onChange={(e) => setSecretKey(e.target.value)}
-            placeholder="Enter your secret key"
-            className="w-full"
-          />
-        </div>
+          <div className="space-y-4 mb-4">
+            <div>
+              <Input
+                type="password"
+                value={secretKey}
+                onChange={(e) => setSecretKey(e.target.value)}
+                placeholder="Enter your secret key"
+                className="w-full"
+              />
+            </div>
+            <div>
+              <Input
+                type="text"
+                value={serverUrl}
+                onChange={(e) => handleServerUrlChange(e.target.value)}
+                placeholder="Enter server URL (ws:// or wss://)"
+                className="w-full"
+              />
+              {urlError && <p className="text-red-500 text-sm mt-1">{urlError}</p>}
+            </div>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
