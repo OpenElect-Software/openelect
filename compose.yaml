@@ -11,18 +11,22 @@ services:
     volumes:
       - ./relay/data:/usr/src/app/db:Z
       - ./relay/config.toml:/usr/src/app/config.toml:ro,Z
+    restart: unless-stopped
   manager:
     container_name: manager
     image: ghcr.io/openelect-software/manager:main
     ports:
       - 3000:3000
+    restart: unless-stopped
   publisher:
     container_name: publisher
     image: ghcr.io/openelect-software/publisher:main
     ports:
       - 3001:3000
+    restart: unless-stopped
   viewer:
     container_name: viewer
     image: ghcr.io/openelect-software/viewer:main
     ports:
       - 3002:3000
+    restart: unless-stopped
