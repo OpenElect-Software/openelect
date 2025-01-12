@@ -16,3 +16,8 @@ services:
     build: ./generator
     ports:
       - 3000:3000
+  publisher:
+    container_name: publisher
+    build: ./publisher
+    ports:
+      - 3001:3000
