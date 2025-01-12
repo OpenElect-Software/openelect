@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { finalizeEvent, verifyEvent } from 'nostr-tools/pure'
 import { hexToBytes } from '@noble/hashes/utils'
+import { Relay } from 'nostr-tools/relay'
 
 interface Entry {
   name: string;
@@ -53,7 +54,7 @@ export default function DataEntry() {
     validateServerUrl(url);
   };
 
-  const submitData = useCallback(() => {
+  const submitData = useCallback(async () => {
     if (!secretKey) {
       console.error('Secret key is required');
       return;
@@ -82,7 +83,12 @@ export default function DataEntry() {
 
       if (isGood) {
         console.log('Event created and verified successfully:', event);
-        // TODO: Publish to nostr relay using the serverUrl
+        const relay = await Relay.connect(serverUrl)
+        console.log(`connected to ${relay.url}`)
+        await relay.publish(event)
+        console.log('published event')
+        relay.close()
+        // TODO: give user visual feedback
       } else {
         console.error('Event verification failed');
       }
