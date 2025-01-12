@@ -2,6 +2,7 @@ services:
   relay:
     container_name: relay
     image: ghcr.io/mroxso/nostr-rs-relay:latest
+    # image: nostr-rs-relay:local
     stdin_open: true
     tty: true
     ports:
@@ -10,3 +11,8 @@ services:
     volumes:
       - ./relay/data:/usr/src/app/db:Z
       - ./relay/config.toml:/usr/src/app/config.toml:ro,Z
+  generator:
+    container_name: generator
+    build: ./generator
+    ports:
+      - 3000:3000
