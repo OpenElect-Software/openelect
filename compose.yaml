@@ -18,6 +18,6 @@ services:
       - 3000:3000
   publisher:
     container_name: publisher
-    build: ./publisher
+    image: ghcr.io/openelect-software/publisher:main
     ports:
       - 3001:3000
