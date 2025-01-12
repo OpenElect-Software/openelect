@@ -1,6 +1,6 @@
-# VotePoint
+# OpenElect
 
-Welcome to the **VotePoint** repository! This project leverages the Nostr protocol to facilitate transparent and verifiable elections. The platform is designed to provide a modern, secure, and user-friendly approach to election management, ensuring trust and integrity in democratic processes.
+Welcome to the **OpenElect** repository! This project leverages the Nostr protocol to facilitate transparent and verifiable elections. The platform is designed to provide a modern, secure, and user-friendly approach to election management, ensuring trust and integrity in democratic processes.
 
 ---
 
